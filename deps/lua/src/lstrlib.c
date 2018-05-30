@@ -491,6 +491,36 @@ static int push_captures (MatchState *ms, const char *s, const char *e) {
   return nlevels;  /* number of strings pushed */
 }
 
+static int str_split(lua_State * L)
+{
+    long long n = 1;
+    int pos = 0;
+    const char * src = lua_tostring(L, 1);
+    int len = strlen(src);
+    char c = lua_tostring(L, 2)[0];
+    // assert(src[0] != c);
+    // assert(src[len-1] != c);
+    //
+
+    lua_newtable(L);
+
+    int i;
+    for(i=0; i<len; ++i){
+        if(src[i] == c){
+            lua_pushinteger(L, n);
+            lua_pushlstring(L, src+pos, i-pos);
+
+            lua_settable(L, -3);
+            ++n;
+            pos = i+1;
+        }
+    }
+    lua_pushinteger(L, n);
+    lua_pushlstring(L, src+pos, len-pos);
+    lua_settable(L, -3);
+
+    return 1;
+}
 
 static int str_find_aux (lua_State *L, int find) {
   size_t l1, l2;
@@ -838,6 +868,7 @@ static const luaL_Reg strlib[] = {
   {"match", str_match},
   {"rep", str_rep},
   {"reverse", str_reverse},
+  {"split", str_split},
   {"sub", str_sub},
   {"upper", str_upper},
   {NULL, NULL}
