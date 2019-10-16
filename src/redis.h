@@ -676,7 +676,9 @@ struct redisServer {
     unsigned lruclock:REDIS_LRU_BITS; /* Clock for LRU eviction */
     int shutdown_asap;          /* SHUTDOWN needed ASAP */
     int activerehashing;        /* Incremental rehash in serverCron() */
-    char *requirepass;          /* Pass for AUTH command, or NULL */
+    int  requirepass_count;	/* wzx */
+    int  requirepass_support_empty;	/* wzx if 1, permit access with no password */
+    char **requirepass;          /* Pass for AUTH command, or NULL */
     char *pidfile;              /* PID file path */
     int arch_bits;              /* 32 or 64 depending on sizeof(long) */
     int cronloops;              /* Number of times the cron function run */

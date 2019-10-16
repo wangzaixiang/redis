@@ -376,12 +376,18 @@ void loadServerConfigFromString(char *config) {
             if ((server.aof_load_truncated = yesnotoi(argv[1])) == -1) {
                 err = "argument must be 'yes' or 'no'"; goto loaderr;
             }
-        } else if (!strcasecmp(argv[0],"requirepass") && argc == 2) {
-            if (strlen(argv[1]) > REDIS_AUTHPASS_MAX_LEN) {
-                err = "Password is longer than REDIS_AUTHPASS_MAX_LEN";
-                goto loaderr;
+        } else if (!strcasecmp(argv[0],"requirepass") && argc >= 2) { // wzx support more password
+	    server.requirepass_count = argc-1;
+	    server.requirepass = malloc( (argc-1)  * sizeof(char*) );
+	    server.requirepass_support_empty = 0;
+	    for(int i=1; i<argc; i++){
+            	if (strlen(argv[i]) > REDIS_AUTHPASS_MAX_LEN) {
+            	   err = "Password is longer than REDIS_AUTHPASS_MAX_LEN";
+            	   goto loaderr;
+                }
+		if(strcmp(argv[i], "nopassword") == 0) server.requirepass_support_empty = 1;
+                server.requirepass[i-1] = zstrdup(argv[i]);
             }
-            server.requirepass = zstrdup(argv[1]);
         } else if (!strcasecmp(argv[0],"pidfile") && argc == 2) {
             zfree(server.pidfile);
             server.pidfile = zstrdup(argv[1]);
